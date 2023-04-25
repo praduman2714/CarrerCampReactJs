@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>React App</title>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      let customers = [];
+      const capacity = 25;
+      let seatsLeft = 25;
+      let status = true
+
+      // Create form submit handler here
+      let capLeft = 25, occupied = 25;
+      let arr = [];
+
+      let nameRef = React.createRef(), phoneRef = React.createRef() , countRef = React.createRef();
+
+      function handleSubmit(e){
+        e.preventDefault();
+        let left  = occupied - countRef.current.value;
+       // occupied = Number(countRef.current.value) + occupied;
+
+        if(left >= 0){
+          arr.push({
+          count : countRef.current.value,
+          name : nameRef.current.value,
+          phone : phoneRef.current.value,
+          checkIn : new Date().toISOString().slice(0, 10),
+          checkOut : "-",
+          status : status ? <span >Click Here to CheckOut</span> : <span> Served </span>,
+          remove : <span>Delete</span>
+        });
+        //capLeft = capLeft - countRef.current.value;
+        occupied = occupied - countRef.current.value;
+
+        }
+        
+        clearInputs();
+        rootElement.render(<App />);
+      }
+
+      
+
+      function statusFunction(index){
+        
+        //console.log(status);
+        for(let i = 0 ; i<arr.length; i++){
+          if(i == index){
+            
+              arr[i].checkOut = new Date().toISOString().slice(0, 10);
+              arr[i].status = <span>Served </span>;
+              status = false;
+            
+          }
+        }
+        occupied += Number(arr[index].count);
+        rootElement.render(<App />);
+      }
+
+      function deleteUser(index){
+        //console.log("Deleted");
+        arr.splice(index, 1);
+        rootElement.render(<App />);
+      }
+
+      const Form = () =>(
+        <form onSubmit = {handleSubmit}>
+          <p><input type = 'number' placeholder = "Guest Count" ref = {countRef}/></p>
+          <p><input type = 'text' placeholder = "Primary Guest Name" ref = {nameRef} /></p>
+          <p><input type = 'text' placeholder = "Phone Number" ref = {phoneRef} /> </p>
+          <button> Add Entry </button>
+
+        </form>
+      )
+
+      const clearInputs = () => {
+        nameRef.current.value = "";
+        phoneRef.current.value = "";
+        countRef.current.value = "";
+      };
+
+      const App = () => (
+        <div className="App" style={{ textAlign: "center" }}>
+          <div>
+            <h2>Total Capacity: {capLeft} </h2>
+            <h2>Seats Left: {occupied} </h2>
+          </div>
+
+          {/* Create a form here */}
+          <Form />
+
+          <br/>
+          {/* Complete table to show records of customers */}
+          <table border="1px" style={{ margin: "auto" }}>
+            <thead>
+              <tr>
+                <th>Count</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+                <th>Remove Entry</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {
+                arr.map( (detail , index) =>(
+                  <tr key = {index}>
+                    <td>{detail.count}</td>
+                    <td>{detail.name}</td>
+                    <td>{detail.phone}</td>
+                    <td>{detail.checkIn}</td>
+                    <td>{detail.checkOut}</td>
+                    <td onClick = {() =>statusFunction(index)}>{detail.status}</td>
+                    <td onClick = {() => deleteUser(index)}>{detail.remove}</td>
+                    
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      );
+
+      const rootElement = ReactDOM.createRoot(document.getElementById("root"));
+      rootElement.render(<App />);
+    </script>
+
+  </body>
+</html>
